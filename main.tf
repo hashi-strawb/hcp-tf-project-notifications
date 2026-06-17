@@ -6,6 +6,13 @@ terraform {
       name = "hcp-tf-project-notifications"
     }
   }
+
+  required_providers {
+    tfe = {
+      source  = "hashicorp/tfe"
+      version = ">= 0.78.0"
+    }
+  }
 }
 
 provider "tfe" {
@@ -16,8 +23,22 @@ provider "tfe" {
 data "tfe_projects" "all" {
 }
 
+resource "tfe_project_notification_configuration" "slack" {
+  for_each = {
+    for project in data.tfe_projects.all.projects :
+    project.id => project
+  }
 
-# TODO: need a project-level notification resource
-# https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/notification_configuration
-
-
+  name             = "Health Checks"
+  enabled          = true
+  destination_type = "slack"
+  triggers = [
+    "assessment:check_failure",
+    "assessment:drifted",
+    "assessment:failed",
+    "run:errored",
+    "run:needs_attention",
+  ]
+  url        = var.slack_webhook
+  project_id = each.value.id
+}
