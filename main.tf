@@ -29,7 +29,7 @@ resource "tfe_project_notification_configuration" "slack" {
     project.id => project
   }
 
-  name             = "Health Checks"
+  name             = "Slack Notifications, Project: ${each.value.name}"
   enabled          = true
   destination_type = "slack"
   triggers = [
