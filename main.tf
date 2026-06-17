@@ -42,10 +42,6 @@ resource "tfe_project_notification_configuration" "slack" {
   url        = var.slack_webhook
   project_id = each.value.id
 
-  # Attempt at a workaround for bug in provider
-  # discussing in Slack:
-  # https://ibm-hashicorp.slack.com/archives/C09KXBVANR4/p1781700262712149
-  lifecycle {
-    ignore_changes = [token]
-  }
+  # Currently a bug in the provider, so this enters an error loop
+  # # https://ibm-hashicorp.slack.com/archives/C09KXBVANR4/p1781700262712149
 }
